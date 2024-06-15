@@ -20,3 +20,16 @@ Use this as a starting point to complete the WDD 330 team activity: the SleepOut
 - `npm run format` to run Prettier to automatically format your code.
 
 ## Netlify link: https://singular-tulumba-85bab9.netlify.app/
+
+## Common workflow
+- Choose a Trello card, assign yourself to it, and move to "Doing".
+- Pull any changes from your team's project.
+- Make a branch.
+- Complete the work.
+- Lint and format the code.
+- Commit and push.
+- Make a pull request for your new branch.
+- Let your group know there is a pull request waiting.
+- Another team member should review the pull request in GitHub and, if everything looks good, Merge the request.
+- Delete the old branch.
+- Move the Trello card to the "Done" list.
