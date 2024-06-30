@@ -18,7 +18,21 @@ export default class ProductDetails {
         if (!Array.isArray(cartList)) {
             cartList = [];
         }
-        cartList.push(product);
+
+        // Check if the product already exists in the cart
+        const existingProduct = cartList.find(item => item.Id === product.Id);
+
+        if (existingProduct) {
+          // If it exists, increment the quantity
+          product.Quantity = existingProduct.Quantity + 1;
+          cartList = cartList.filter((item) => item.Id !== product.Id);
+          cartList.push(product);
+        } else {
+          // If it doesn't exist, set the quantity to 1 and add it to the cart
+          product.Quantity = 1;
+          cartList.push(product);
+        }
+
         setLocalStorage('so-cart', cartList);
     }
 
@@ -32,7 +46,7 @@ export default class ProductDetails {
 
         <img
           class="divider"
-          src=${product.Image}
+          src=${product.Images.PrimaryLarge}
           alt=${product.NameWithoutBrand}
         />
 

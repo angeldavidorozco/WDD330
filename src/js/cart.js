@@ -1,5 +1,8 @@
-import { getLocalStorage, setLocalStorage } from './utils.mjs';
-import { loadHeaderFooter } from './utils.mjs';
+import {
+  getLocalStorage,
+  setLocalStorage,
+  loadHeaderFooter,
+} from './utils.mjs';
 
 function deleteItem(itemId) {
   const cartItems = getLocalStorage('so-cart');
@@ -8,46 +11,34 @@ function deleteItem(itemId) {
   renderCartContents();
 }
 
-function countAndRemoveDuplicates(items) {
-  const counts = {};
-  const uniqueItems = [];
-
-  items.forEach((item) => {
-    if (counts[item.Id]) {
-      counts[item.Id]++;
-    } else {
-      counts[item.Id] = 1;
-      uniqueItems.push(item);
-    }
-  });
-
-  return { counts, uniqueItems };
+function modifyQuantity(itemId, operation) {
+  let cartItems = getLocalStorage('so-cart');
+  const existingProduct = cartItems.find((item) => item.Id === itemId);
+  existingProduct.Quantity = existingProduct.Quantity + operation;
+  if (existingProduct.Quantity == 0) {
+    deleteItem(itemId);
+    return;
+  }
+  cartItems = cartItems.filter((item) => item.Id !== existingProduct.Id);
+  cartItems.push(existingProduct);
+  setLocalStorage('so-cart', cartItems);
+  renderCartContents();
 }
 
 function renderCartContents() {
-  const cartItems = getLocalStorage('so-cart');
-  const { counts, uniqueItems } = countAndRemoveDuplicates(cartItems);
-  const htmlItems = uniqueItems.map((item) =>
-    cartItemTemplate(item, counts[item.Id]),
-  );
+  let cartItems = getLocalStorage('so-cart');
+  if (!Array.isArray(cartItems)) {
+    cartItems = [];
+  }
+  const htmlItems = cartItems.map((item) => cartItemTemplate(item));
   document.querySelector('.product-list').innerHTML = htmlItems.join('');
-
-  // Event delegation
-  document
-    .querySelector('.product-list')
-    .addEventListener('click', function (event) {
-      if (event.target.dataset.id) {
-        const itemId = event.target.dataset.id; // Use as string
-        deleteItem(itemId);
-      }
-    });
 }
 
-function cartItemTemplate(item, quatity) {
+function cartItemTemplate(item) {
   const newItem = `<li class="cart-card divider">
   <a href="#" class="cart-card__image">
     <img
-      src="${item.Image}"
+      src="${item.Images.PrimarySmall}"
       alt="${item.Name}"
     />
   </a>
@@ -55,13 +46,38 @@ function cartItemTemplate(item, quatity) {
     <h2 class="card__name">${item.Name}</h2>
   </a>
   <p class="cart-card__color">${item.Colors[0].ColorName}</p>
-  <p class="cart-card__quantity">qty: ${quatity}</p>
-  <p class="cart-card__price">$${item.FinalPrice}</p>
+  <p class="cart-card__quantity">qty: ${item.Quantity}</p>
+  <p class="cart-card__price">$${item.FinalPrice * item.Quantity}</p>
+  <div class='button-grid'>
+  <button class="cart-card__add" data-id="${item.Id}" data-operation="1">➕</button>
   <button class="cart-card__delete" data-id="${item.Id}">❌</button>
+  <button class="cart-card__substract" data-id="${item.Id}" data-operation="-1">➖</button>
+  </div>
+
+  
 </li>`;
 
   return newItem;
 }
 
+function attachEvent() {
+  document
+    .querySelector('.product-list')
+    .addEventListener('click', function (event) {
+      if (event.target.dataset.operation && event.target.dataset.id) {
+        const itemId = event.target.dataset.id;
+        const operation = parseInt(event.target.dataset.operation);
+        modifyQuantity(itemId, operation);
+        return;
+      }
+      if (event.target.dataset.id) {
+        const itemId = event.target.dataset.id;
+        deleteItem(itemId);
+        return;
+      }
+    });
+}
+
 renderCartContents();
+attachEvent();
 loadHeaderFooter();
