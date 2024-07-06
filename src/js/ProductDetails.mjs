@@ -37,34 +37,63 @@ export default class ProductDetails {
         alertMessage('The Item Has Been Successfully Added');
     }
 
-    productDetailsTemplate(product){
-
-        let productDetails = `
+    // Constructs the carousel and product details HTML
+    // If there are no ExtraImages, the carousel controls are not rendered
+    productDetailsTemplate(product) {
+      let productDetails = `
         <section class="product-detail">
-        <h3>${product.Brand.Name}</h3>
+          <h3>${product.Brand.Name}</h3>
+          <h2 class="divider">${product.Name}</h2>
+          <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="${product.Images.PrimaryLarge}" alt="${product.NameWithoutBrand}">
+              </div>
+      `;
 
-        <h2 class="divider">${product.Name}</h2>
+      if (product.Images.ExtraImages && product.Images.ExtraImages.length > 0) {
+        productDetails += product.Images.ExtraImages
+          .map(
+            (image) => `
+              <div class="carousel-item">
+                <img src="${image.Src}" alt="${product.NameWithoutBrand}">
+              </div>
+            `
+          )
+          .join('');
+      }
 
-        <img
-          class="divider"
-          src=${product.Images.PrimaryLarge}
-          alt=${product.NameWithoutBrand}
-        />
+      productDetails += `
+            </div>
+      `;
 
-        <p class="product-card__price">${product.FinalPrice}</p>
+      if (product.Images.ExtraImages && product.Images.ExtraImages.length > 1) {
+        productDetails += `
+          <a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        `;
+      }
 
-        <p class="product__color">${product.Colors[0].ColorName}</p>
+      productDetails += `
+          </div>
+          <p class="product-card__price">${product.FinalPrice}</p>
+          <p class="product__color">${product.Colors[0].ColorName}</p>
+          <p class="product__description">
+            ${product.DescriptionHtmlSimple}
+          </p>
+          <div class="product-detail__add">
+            <button id="addToCart" data-id=${product.Id}>Add to Cart</button>
+          </div>
+        </section>
+      `;
 
-        <p class="product__description">
-        ${product.DescriptionHtmlSimple}
-        </p>
-
-        <div class="product-detail__add">
-          <button id="addToCart" data-id=${product.Id}>Add to Cart</button>
-        </div>
-      </section>
-      `
-      return productDetails
+      return productDetails;
     }
 
     addToCart(e) {
@@ -85,6 +114,8 @@ export default class ProductDetails {
         this.product = await this.dataSource.findProductById(this.productId);
 
         await this.renderProductDetails("main");
+
+        $('.carousel').carousel()
        
         document
           .getElementById("addToCart")
