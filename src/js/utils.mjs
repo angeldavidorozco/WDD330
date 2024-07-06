@@ -64,15 +64,55 @@ export async function loadHeaderFooter() {
   renderWithTemplate(footerTemplate, footerElement);
 }
 
-/*
-export function renderWithTemplate(templateFn, parentElement, data, callback, position = "afterbegin", clear = false){
-  if(clear){
-    return
-  }
-  const htmlStrings = templateFn(data);
-  parentElement.insertAdjacentHTML(position, htmlStrings);
-  if(callback) {
-    callback(data);
+export function alertMessage(message, scroll=true) {
+
+  const alert = document.createElement('div');
+  const button = document.createElement('button');
+
+  alert.classList.add('alert');
+  button.classList.add('alert-button');
+  
+  alert.innerText = message;
+  button.innerText = 'X';
+  
+  alert.appendChild(button);
+  
+  alert.addEventListener('click', function(e) {
+      if(e.target.innerText = message) { 
+        main.removeChild(this);
+      }
+  })
+  
+  const main = document.querySelector('main');
+  main.prepend(alert);
+  
+  if(scroll)
+    window.scrollTo(0,0);
+}
+
+export function removeAllAlerts() {
+  const alerts = document.querySelectorAll(".alert");
+  alerts.forEach((alert) => document.querySelector("main").removeChild(alert));
+}
+
+export function getLabelText(inputId) {
+  const label = document.querySelector(`label[for="${inputId}"]`);
+  if (label) {
+    return label.textContent.trim();
+  } else {
+    console.error(`Label not found for input ID: ${inputId}`);
+    return '';
   }
 }
-*/
+
+export function checkFieldsEmpty(orderData) {
+  for (let key in orderData) {
+    if (orderData[key] == '' || orderData[key] == null) {
+      removeAllAlerts();
+      let message = getLabelText(key);
+      alertMessage(`Missing ${message}`); 
+      return true;
+    }
+  }
+  return false; 
+}

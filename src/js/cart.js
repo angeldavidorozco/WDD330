@@ -25,16 +25,18 @@ function modifyQuantity(itemId, operation) {
   renderCartContents();
 }
 
-function hideTotal() {
+function hideTotalAndCheckout() {
   document.querySelector('#cart-footer').classList.add('hide');
+  document.querySelector('#checkout-button').classList.add('hide');
 }
 
-function renderTotal(cartItems) {
+function renderTotalAndCheckout(cartItems) {
   let total = cartItems.reduce(
     (sum, item) => sum + item.FinalPrice * item.Quantity,
     0,
   );
   document.querySelector('#cart-footer').classList.remove('hide');
+  document.querySelector('#checkout-button').classList.remove('hide');
   document.querySelector('#cart-footer').innerHTML = `
   <p class="cart-total">Total: $${total.toFixed(2)}</p>
   `;
@@ -47,9 +49,9 @@ function renderCartContents() {
   }
 
   if (cartItems.length == 0) {
-    hideTotal();
+    hideTotalAndCheckout();
   } else {
-    renderTotal(cartItems);
+    renderTotalAndCheckout(cartItems);
   }
   const htmlItems = cartItems.map((item) => cartItemTemplate(item));
   document.querySelector('.product-list').innerHTML = htmlItems.join('');

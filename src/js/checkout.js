@@ -1,4 +1,11 @@
-import { loadHeaderFooter, getLocalStorage } from './utils.mjs';
+import {
+  loadHeaderFooter,
+  getLocalStorage,
+  setLocalStorage,
+  removeAllAlerts,
+  alertMessage,
+  checkFieldsEmpty,
+} from './utils.mjs';
 import ExternalServices from './ExternalServices.mjs';
 
 function packageItems() {
@@ -29,7 +36,8 @@ export default class CheckoutProcess {
     this.cartItems = getLocalStorage(this.key);
     this.calculateItemSummary();
     let form = document.getElementById('checkout-form');
-    form.addEventListener('submit', (event) => this.checkout(event, form));
+    let formButton = document.getElementById('submit-button');
+    formButton.addEventListener('click', (event) => this.checkout(event, form));
   }
 
   calculateItemSummary() {
@@ -69,15 +77,15 @@ export default class CheckoutProcess {
     const formData = new FormData(form);
 
     // Collect form data
-    const fname = formData.get('first-name');
-    const lname = formData.get('last-name');
-    const street = formData.get('street-address');
+    const fname = formData.get('fname');
+    const lname = formData.get('lname');
+    const street = formData.get('street');
     const city = formData.get('city');
     const state = formData.get('state');
-    const zip = formData.get('zip-code');
-    const cardNumber = formData.get('credit-card-number');
-    const expiration = formData.get('expiration-date');
-    const code = formData.get('security-code');
+    const zip = formData.get('zip');
+    const cardNumber = formData.get('cardNumber');
+    const expiration = formData.get('expiration');
+    const code = formData.get('code');
 
     const items = packageItems();
 
@@ -97,8 +105,21 @@ export default class CheckoutProcess {
       shipping: this.shipping,
       tax: this.tax.toFixed(2),
     };
+
+    if (checkFieldsEmpty(orderData)) {
+      return;
+    }
     // call the checkout method in our ExternalServices module and send it our data object.
-    services.checkout(orderData);
+    try {
+      services.checkout(orderData);
+      window.location.href = '/checkout/success.html';
+      setLocalStorage('so-cart', []); //Cleaning the cart
+    } catch (err) {
+      removeAllAlerts();
+      for (let message in err.message) {
+        alertMessage(err.message[message]);
+      }
+    }
   }
 }
 
