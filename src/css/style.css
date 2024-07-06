@@ -260,6 +260,25 @@ button {
   max-width: 1200px;
   text-align: right;
 }
+
+.alert {
+  display: grid;
+  grid-template-columns: 10fr 1fr;
+  background-color: orange;
+  padding: 10px;
+  margin-bottom: 5px;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.alert-button {
+  display: inline-block;
+  background-color: transparent;
+  border: none;
+  color: white;
+  margin-left: auto;
+}
 @media screen and (min-width: 500px) {
   body {
     max-width: 1080px;
